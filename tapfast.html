@@ -1,0 +1,2850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FFFFFF">
+<title>Tap Fast</title>
+<style>
+/* ============================================================
+   TAP FAST — Design tokens
+   ============================================================ */
+:root {
+  --white: #FFFFFF;
+  --bg: #FAFAFB;
+  --surface: #FFFFFF;
+  --label: #1C1C1E;
+  --label-2: #6E6E73;
+  --label-3: #AEAEB2;
+  --separator: rgba(60, 60, 67, 0.10);
+  --separator-strong: rgba(60, 60, 67, 0.18);
+  --fill-1: rgba(120, 120, 128, 0.10);
+  --fill-2: rgba(120, 120, 128, 0.16);
+  --fill-3: rgba(120, 120, 128, 0.06);
+  --blue: #0A84FF;
+  --blue-deep: #0066D6;
+  --blue-soft: rgba(10, 132, 255, 0.10);
+  --green: #34C759;
+  --red: #FF3B30;
+  --orange: #FF9500;
+  --yellow: #FFCC00;
+  --purple: #AF52DE;
+  --radius-sm: 10px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+  --dur-fast: 0.18s;
+  --dur: 0.28s;
+  --dur-slow: 0.42s;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--label);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  font-feature-settings: "tnum" 1, "cv11" 1;
+}
+
+body.no-anim *, body.no-anim *::before, body.no-anim *::after {
+  transition-duration: 0s !important;
+  animation-duration: 0s !important;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ============================================================
+   Screens
+   ============================================================ */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+.screen.hidden { display: none; }
+
+/* ============================================================
+   Typography
+   ============================================================ */
+.t-large { font-size: 34px; font-weight: 700; letter-spacing: -0.6px; line-height: 1.08; }
+.t-title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+.t-headline { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
+.t-body { font-size: 17px; font-weight: 400; letter-spacing: -0.2px; }
+.t-sub { font-size: 15px; font-weight: 400; letter-spacing: -0.1px; color: var(--label-2); }
+.t-caption { font-size: 13px; font-weight: 400; color: var(--label-2); }
+.t-section {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--label-2);
+  padding: 0 20px 6px 20px;
+}
+.num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 50px;
+  border-radius: var(--radius);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) ease, opacity var(--dur-fast) ease;
+  will-change: transform;
+}
+.btn:active { transform: scale(0.975); }
+
+/* Solid primary — Tap Fast blue */
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(10, 132, 255, 0.22);
+}
+.btn-primary:active { background: var(--blue-deep); }
+
+.btn-primary-lg {
+  height: 58px;
+  font-size: 18px;
+  border-radius: 16px;
+}
+
+/* Solid secondary */
+.btn-secondary {
+  background: var(--surface);
+  color: var(--label);
+  box-shadow: inset 0 0 0 0.5px var(--separator-strong);
+}
+.btn-secondary:active { background: var(--fill-3); }
+
+/* Liquid Glass — only for approved secondary controls */
+.btn-glass {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.75),
+    inset 0 0 0 1px rgba(60, 60, 67, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.03);
+  color: var(--label);
+}
+.btn-glass:active {
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.btn-destructive {
+  background: var(--surface);
+  color: var(--red);
+  box-shadow: inset 0 0 0 0.5px var(--separator-strong);
+}
+.btn-destructive:active { background: var(--fill-3); }
+
+/* ============================================================
+   Nav bar
+   ============================================================ */
+.nav {
+  display: flex;
+  align-items: center;
+  height: calc(48px + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) 12px 0 12px;
+  flex-shrink: 0;
+  background: rgba(250, 250, 251, 0.82);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  position: relative;
+  z-index: 5;
+  border-bottom: 0.5px solid var(--separator);
+}
+
+/* Icon-only back — chevron */
+.nav-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--blue);
+  border-radius: 12px;
+  transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+.nav-back:active {
+  opacity: 0.75;
+  transform: scale(0.94);
+  background: rgba(10, 132, 255, 0.08);
+}
+.nav-back svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--label);
+  pointer-events: none;
+}
+.nav-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-right: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--label);
+  letter-spacing: -0.2px;
+}
+.nav-right .coin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFD34D 0%, #FF9F00 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+/* ============================================================
+   Grouped list
+   ============================================================ */
+.group {
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin: 0 16px 22px 16px;
+  overflow: hidden;
+  box-shadow: 0 0.5px 0 var(--separator);
+}
+.group-tight { margin: 0 16px 10px 16px; }
+.group-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  padding: 11px 16px;
+  background: var(--surface);
+  transition: background var(--dur-fast) ease;
+  width: 100%;
+  text-align: left;
+}
+.group-row:active { background: var(--fill-3); }
+.group-row:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 60px;
+  right: 0;
+  bottom: 0;
+  height: 0.5px;
+  background: var(--separator);
+}
+.group-row.no-icon:not(:last-child)::after { left: 16px; }
+
+.row-icon {
+  width: 29px;
+  height: 29px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+.row-icon svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.row-main { flex: 1; min-width: 0; }
+.row-title {
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.2px;
+  color: var(--label);
+}
+.row-sub {
+  font-size: 13px;
+  color: var(--label-2);
+  margin-top: 2px;
+  letter-spacing: -0.05px;
+}
+.row-value {
+  font-size: 16px;
+  color: var(--label-2);
+  letter-spacing: -0.2px;
+  font-variant-numeric: tabular-nums;
+}
+.row-chevron {
+  width: 8px;
+  height: 13px;
+  flex-shrink: 0;
+  color: var(--label-3);
+}
+.row-chevron svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ============================================================
+   Switch
+   ============================================================ */
+.switch {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  border-radius: 16px;
+  background: #E9E9EB;
+  flex-shrink: 0;
+  transition: background var(--dur) var(--ease);
+  cursor: pointer;
+}
+.switch.on { background: var(--green); }
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.16);
+  transition: transform var(--dur) var(--ease);
+}
+.switch.on::after { transform: translateX(20px); }
+
+/* ============================================================
+   Segmented control
+   ============================================================ */
+.segmented {
+  display: flex;
+  background: var(--fill-3);
+  border-radius: 10px;
+  padding: 2px;
+  gap: 2px;
+}
+.segmented button {
+  flex: 1;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.08px;
+  color: var(--label);
+  background: transparent;
+  transition: background var(--dur-fast) ease, box-shadow var(--dur-fast) ease, transform var(--dur-fast) ease;
+  min-height: 32px;
+  white-space: nowrap;
+}
+.segmented button:active { transform: scale(0.97); }
+.segmented button.active {
+  background: var(--surface);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.10), 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+/* Store category selector — Liquid Glass variant */
+.segmented-glass {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.7),
+    inset 0 0 0 1px rgba(60, 60, 67, 0.04);
+}
+.segmented-glass button.active {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* ============================================================
+   Signature splash
+   ============================================================ */
+#splashScreen {
+  background: var(--white);
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.splash-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.splash-glow {
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(10, 132, 255, 0.10) 0%, rgba(10, 132, 255, 0) 65%);
+  opacity: 0;
+  animation: glowPulse 1.6s var(--ease) 0.15s both;
+}
+@keyframes glowPulse {
+  0% { opacity: 0; transform: scale(0.7); }
+  40% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.6; transform: scale(1.05); }
+}
+.splash-ring {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 1.5px solid var(--blue);
+  opacity: 0;
+  animation: ringExpand 1.5s var(--ease) 0.35s both;
+}
+.splash-ring.ring-2 {
+  animation-delay: 0.5s;
+  border-width: 1px;
+  animation-duration: 1.4s;
+}
+@keyframes ringExpand {
+  0% { opacity: 0; transform: scale(0.55); }
+  25% { opacity: 0.85; }
+  100% { opacity: 0; transform: scale(2.6); }
+}
+.splash-logo {
+  position: relative;
+  font-size: 46px;
+  font-weight: 800;
+  letter-spacing: -1.6px;
+  color: var(--label);
+  line-height: 1;
+  animation: logoIn 0.6s var(--ease-spring) both;
+  z-index: 2;
+}
+.splash-logo .accent { color: var(--blue); }
+@keyframes logoIn {
+  0% { opacity: 0; transform: scale(0.86); filter: blur(8px); }
+  55% { opacity: 1; transform: scale(1.025); filter: blur(0); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+.splash-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.9) 50%, transparent 100%);
+  transform: translateX(-120%);
+  animation: shineSweep 1.1s var(--ease) 0.55s both;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  z-index: 3;
+}
+@keyframes shineSweep {
+  0% { transform: translateX(-120%); opacity: 0; }
+  20% { opacity: 0.7; }
+  100% { transform: translateX(340%); opacity: 0; }
+}
+.splash-out .splash-logo { animation: logoOut 0.42s var(--ease) both; }
+.splash-out .splash-glow { animation: glowOut 0.42s var(--ease) both; }
+@keyframes logoOut {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.94); }
+}
+@keyframes glowOut {
+  0% { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+/* ============================================================
+   Home
+   ============================================================ */
+#homeScreen { background: var(--bg); }
+.home-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top) + 28px) 20px calc(env(safe-area-inset-bottom) + 24px) 20px;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+}
+.home-brand {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -1.3px;
+  line-height: 1.05;
+  color: var(--label);
+}
+.home-brand .accent { color: var(--blue); }
+.home-tagline {
+  font-size: 15px;
+  color: var(--label-2);
+  letter-spacing: -0.1px;
+  margin-top: 6px;
+  margin-bottom: 32px;
+}
+.home-stats {
+  display: flex;
+  gap: 10px;
+  margin-bottom: auto;
+}
+.home-stat {
+  flex: 1;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px 14px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: 0 0.5px 0 var(--separator);
+  transition: transform var(--dur-fast) var(--ease);
+}
+.home-stat:active { transform: scale(0.985); }
+.home-stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.7px;
+  color: var(--label);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.home-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--label-2);
+  text-transform: uppercase;
+}
+.home-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 24px;
+}
+.home-icon-row {
+  display: flex;
+  gap: 10px;
+}
+/* Liquid Glass secondary controls — Home */
+.home-icon-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 14px 8px 13px 8px;
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-radius: var(--radius);
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.75),
+    inset 0 0 0 1px rgba(60, 60, 67, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: background var(--dur-fast) ease, transform var(--dur-fast) var(--ease);
+}
+.home-icon-btn:active {
+  background: rgba(255, 255, 255, 0.48);
+  transform: scale(0.975);
+}
+.home-icon-btn svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--blue);
+  stroke-width: 1.9;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.home-icon-btn .label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.08px;
+  color: var(--label);
+}
+
+/* ============================================================
+   Game
+   ============================================================ */
+#gameScreen { background: var(--bg); }
+
+/* Top HUD — exit left, stats right */
+.game-hud {
+  padding: calc(env(safe-area-inset-top) + 12px) 18px 0 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Liquid Glass Exit button */
+.game-exit {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.75),
+    inset 0 0 0 1px rgba(60, 60, 67, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+  color: var(--label);
+  transition: background var(--dur-fast) ease, transform var(--dur-fast) var(--ease);
+  margin-top: 2px;
+}
+.game-exit:active {
+  background: rgba(255, 255, 255, 0.48);
+  transform: scale(0.93);
+}
+.game-exit svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.game-score-group {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.game-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.game-stat.right { align-items: flex-end; }
+.game-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--label-2);
+  text-transform: uppercase;
+}
+.game-value {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: var(--label);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  transition: transform var(--dur-fast) var(--ease);
+}
+.game-value.timer { color: var(--blue); }
+.game-value.pop { transform: scale(1.08); }
+
+.game-combo {
+  text-align: center;
+  margin-top: 6px;
+  height: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  color: var(--blue);
+  opacity: 0;
+  transition: opacity var(--dur) ease, transform var(--dur) var(--ease-spring);
+  transform: translateY(-4px);
+}
+.game-combo.show { opacity: 1; transform: translateY(0); }
+
+.game-progress {
+  height: 3px;
+  background: var(--fill-1);
+  border-radius: 2px;
+  margin: 14px 22px 0 22px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.game-progress-fill {
+  height: 100%;
+  background: var(--blue);
+  border-radius: 2px;
+  width: 100%;
+  transition: width 0.1s linear, background var(--dur) ease;
+}
+.game-progress-fill.warn { background: var(--orange); }
+.game-progress-fill.danger { background: var(--red); }
+
+.game-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.countdown-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(250, 250, 251, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 20;
+  pointer-events: none;
+  transition: opacity var(--dur) ease;
+}
+.countdown-overlay.hidden { display: none; }
+.countdown-number {
+  font-size: 104px;
+  font-weight: 800;
+  letter-spacing: -5px;
+  color: var(--blue);
+  font-variant-numeric: tabular-nums;
+  animation: countPop 0.55s var(--ease-spring) both;
+}
+@keyframes countPop {
+  0% { opacity: 0; transform: scale(0.55); filter: blur(6px); }
+  60% { opacity: 1; transform: scale(1.06); filter: blur(0); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ============================================================
+   Target
+   ============================================================ */
+.target {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform, opacity;
+  cursor: pointer;
+  touch-action: none;
+}
+.target.appear { animation: targetIn 0.24s var(--ease-spring) both; }
+.target.hit { animation: targetOut 0.16s var(--ease) both; pointer-events: none; }
+@keyframes targetIn {
+  0% { opacity: 0; transform: scale(0.35); }
+  60% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes targetOut {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.55); }
+}
+
+.shape-circle { border-radius: 50%; }
+.shape-ring { border-radius: 50%; background: transparent !important; }
+.shape-square { border-radius: 22%; }
+.shape-star {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  border-radius: 0;
+}
+.shape-hexagon {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  border-radius: 0;
+}
+.shape-pulse { border-radius: 50%; }
+.shape-minimal { border-radius: 50%; }
+
+.hit-effect {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0.95;
+  will-change: transform, opacity;
+  animation: effectOut 0.52s var(--ease) forwards;
+}
+@keyframes effectOut {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.95; }
+  100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
+}
+
+/* ============================================================
+   Result
+   ============================================================ */
+#resultScreen { background: var(--bg); }
+.result-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top) + 24px) 20px calc(env(safe-area-inset-bottom) + 20px) 20px;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  overflow-y: auto;
+}
+.result-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--label-2);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.result-score {
+  font-size: 84px;
+  font-weight: 800;
+  letter-spacing: -3.5px;
+  line-height: 1;
+  text-align: center;
+  color: var(--label);
+  font-variant-numeric: tabular-nums;
+}
+.new-best {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 14px auto 0 auto;
+  padding: 7px 14px 7px 12px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.08px;
+  animation: bestPop 0.55s var(--ease-spring) both;
+}
+.new-best.hidden { display: none; }
+.new-best svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2.8;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@keyframes bestPop {
+  0% { opacity: 0; transform: scale(0.75); }
+  60% { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.result-stats { margin-top: 30px; }
+.result-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 30px;
+}
+
+/* ============================================================
+   Store
+   ============================================================ */
+.store-segments-wrap {
+  padding: 4px 16px 14px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+.store-segments-wrap::-webkit-scrollbar { display: none; }
+.store-segments {
+  display: inline-flex;
+}
+.store-segments button {
+  padding: 7px 16px;
+}
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0 16px 32px 16px;
+}
+.store-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0.5px 0 var(--separator);
+  transition: transform var(--dur-fast) var(--ease);
+}
+.store-card:active { transform: scale(0.985); }
+.store-card-preview {
+  aspect-ratio: 1 / 1;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.store-card-body {
+  padding: 11px 13px 13px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.store-card-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.25px;
+  color: var(--label);
+  line-height: 1.2;
+}
+.store-card-meta {
+  font-size: 12px;
+  color: var(--label-2);
+  margin-bottom: 7px;
+  letter-spacing: -0.05px;
+}
+.store-card-btn {
+  width: 100%;
+  height: 32px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.08px;
+  transition: background var(--dur-fast) ease, opacity var(--dur-fast) ease, transform var(--dur-fast) var(--ease);
+}
+.store-card-btn:active { transform: scale(0.96); }
+/* Solid primary for BUY */
+.store-card-btn.buy {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(10, 132, 255, 0.22);
+}
+.store-card-btn.buy:active { background: var(--blue-deep); }
+/* Liquid Glass for EQUIP (secondary) */
+.store-card-btn.equip {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  color: var(--label);
+  box-shadow:
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.75),
+    inset 0 0 0 1px rgba(60, 60, 67, 0.05);
+}
+.store-card-btn.equip:active { background: rgba(255, 255, 255, 0.45); }
+.store-card-btn.equipped {
+  background: var(--blue-soft);
+  color: var(--blue);
+  pointer-events: none;
+}
+.store-card-btn.locked {
+  background: var(--fill-3);
+  color: var(--label-3);
+  pointer-events: none;
+}
+.badge {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--label-2);
+  box-shadow: inset 0 0 0 0.5px rgba(60, 60, 67, 0.08);
+}
+.badge.owned { background: rgba(52, 199, 89, 0.15); color: var(--green); box-shadow: none; }
+.badge.premium { background: rgba(255, 149, 0, 0.15); color: var(--orange); box-shadow: none; }
+.badge.level { background: rgba(10, 132, 255, 0.12); color: var(--blue); box-shadow: none; }
+.badge.free { background: rgba(52, 199, 89, 0.15); color: var(--green); box-shadow: none; }
+
+/* ============================================================
+   Stats
+   ============================================================ */
+.stat-hero {
+  text-align: center;
+  padding: 4px 20px 22px 20px;
+}
+.stat-hero-value {
+  font-size: 60px;
+  font-weight: 800;
+  letter-spacing: -2.5px;
+  line-height: 1;
+  color: var(--label);
+  font-variant-numeric: tabular-nums;
+}
+.stat-hero-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--label-2);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+/* ============================================================
+   Achievements
+   ============================================================ */
+.achv-row {
+  align-items: flex-start;
+  padding: 14px 16px;
+  gap: 12px;
+}
+.achv-row .row-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+.achv-row .row-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.achv-row.locked { opacity: 0.45; }
+.achv-reward {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--orange);
+  margin-top: 5px;
+}
+.achv-check {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  animation: checkIn 0.35s var(--ease-spring) both;
+}
+.achv-check svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@keyframes checkIn {
+  0% { opacity: 0; transform: scale(0.4); }
+  60% { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ============================================================
+   Sheet
+   ============================================================ */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  transition: opacity var(--dur) ease;
+}
+.sheet-overlay.hidden { display: none; }
+.sheet-overlay.showing { opacity: 1; }
+.sheet {
+  width: 100%;
+  background: var(--white);
+  border-radius: 22px 22px 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  transform: translateY(100%);
+  transition: transform 0.42s var(--ease);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.12);
+}
+.sheet-overlay.showing .sheet { transform: translateY(0); }
+.sheet-handle {
+  width: 38px;
+  height: 5px;
+  background: var(--fill-2);
+  border-radius: 3px;
+  margin: 9px auto 0 auto;
+  flex-shrink: 0;
+}
+.sheet-content {
+  padding: 16px 22px 26px 22px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.sheet-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.sheet-message {
+  font-size: 15px;
+  color: var(--label-2);
+  text-align: center;
+  line-height: 1.45;
+  margin-bottom: 20px;
+  letter-spacing: -0.1px;
+}
+.sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ============================================================
+   Alert
+   ============================================================ */
+.alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  opacity: 0;
+  transition: opacity var(--dur) ease;
+}
+.alert-overlay.hidden { display: none; }
+.alert-overlay.showing { opacity: 1; }
+.alert {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 290px;
+  padding: 22px 18px 0 18px;
+  text-align: center;
+  transform: scale(0.92);
+  transition: transform var(--dur) var(--ease-spring);
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18), inset 0 0 0 0.5px rgba(255, 255, 255, 0.6);
+}
+.alert-overlay.showing .alert { transform: scale(1); }
+.alert-title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  margin-bottom: 4px;
+}
+.alert-message {
+  font-size: 13px;
+  color: var(--label-2);
+  line-height: 1.4;
+  margin-bottom: 20px;
+  letter-spacing: -0.05px;
+}
+.alert-actions {
+  display: flex;
+  border-top: 0.5px solid var(--separator-strong);
+  margin: 0 -18px;
+}
+.alert-actions button {
+  flex: 1;
+  height: 44px;
+  font-size: 17px;
+  color: var(--blue);
+  font-weight: 400;
+  transition: background var(--dur-fast) ease;
+}
+.alert-actions button:active { background: var(--fill-3); }
+.alert-actions button + button {
+  border-left: 0.5px solid var(--separator-strong);
+}
+.alert-actions button.destructive { color: var(--red); }
+.alert-actions button.bold { font-weight: 600; }
+
+/* ============================================================
+   Toast
+   ============================================================ */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 26px);
+  transform: translateX(-50%) translateY(16px);
+  background: rgba(28, 28, 30, 0.92);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.05px;
+  padding: 11px 20px;
+  border-radius: 100px;
+  opacity: 0;
+  transition: opacity var(--dur) ease, transform var(--dur) var(--ease-spring);
+  pointer-events: none;
+  z-index: 200;
+  max-width: 80vw;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.toast.showing {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 360px) {
+  .home-brand { font-size: 34px; }
+  .home-stat-value { font-size: 22px; }
+  .result-score { font-size: 72px; }
+  .countdown-number { font-size: 88px; }
+  .store-grid { gap: 10px; }
+  .splash-logo { font-size: 40px; }
+  .game-value { font-size: 28px; }
+  .game-exit { width: 38px; height: 38px; }
+}
+@media (min-width: 480px) {
+  .store-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===================== SPLASH ===================== -->
+  <div id="splashScreen" class="screen">
+    <div class="splash-stage">
+      <div class="splash-glow"></div>
+      <div class="splash-ring"></div>
+      <div class="splash-ring ring-2"></div>
+      <div class="splash-logo">Tap<span class="accent">Fast</span></div>
+      <div class="splash-shine"></div>
+    </div>
+  </div>
+
+  <!-- ===================== HOME ===================== -->
+  <div id="homeScreen" class="screen hidden">
+    <div class="home-inner">
+      <div class="home-brand">Tap<span class="accent">Fast</span></div>
+      <div class="home-tagline">Tap the target. Beat the clock.</div>
+
+      <div class="home-stats">
+        <div class="home-stat">
+          <div class="home-stat-value num" id="homeBest">0</div>
+          <div class="home-stat-label">Best</div>
+        </div>
+        <div class="home-stat">
+          <div class="home-stat-value num" id="homeLevel">1</div>
+          <div class="home-stat-label">Level</div>
+        </div>
+        <div class="home-stat">
+          <div class="home-stat-value num" id="homeCoins">0</div>
+          <div class="home-stat-label">Coins</div>
+        </div>
+      </div>
+
+      <div class="home-actions">
+        <button class="btn btn-primary btn-primary-lg" id="playBtn">Play</button>
+        <div class="home-icon-row">
+          <button class="home-icon-btn" id="storeBtn">
+            <svg viewBox="0 0 24 24"><path d="M6 2L3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-3-5z"/><path d="M3 7h18"/><path d="M16 11a4 4 0 0 1-8 0"/></svg>
+            <span class="label">Store</span>
+          </button>
+          <button class="home-icon-btn" id="statsBtn">
+            <svg viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M12 20V4"/><path d="M20 20v-6"/></svg>
+            <span class="label">Stats</span>
+          </button>
+          <button class="home-icon-btn" id="settingsBtn">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span class="label">Settings</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== GAME ===================== -->
+  <div id="gameScreen" class="screen hidden">
+    <div class="game-hud">
+      <!-- Liquid Glass Exit button -->
+      <button class="game-exit" id="gameExitBtn" aria-label="Exit game">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <div class="game-score-group">
+        <div class="game-stat">
+          <div class="game-label">Score</div>
+          <div class="game-value num" id="gameScore">0</div>
+        </div>
+        <div class="game-stat right">
+          <div class="game-label">Time</div>
+          <div class="game-value num timer" id="gameTimer">30.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="game-combo" id="gameCombo">Combo ×2</div>
+    <div class="game-progress">
+      <div class="game-progress-fill" id="timerBar"></div>
+    </div>
+    <div class="game-area" id="gameArea"></div>
+    <div class="countdown-overlay hidden" id="countdownOverlay">
+      <div class="countdown-number" id="countdownNumber">3</div>
+    </div>
+  </div>
+
+  <!-- ===================== RESULT ===================== -->
+  <div id="resultScreen" class="screen hidden">
+    <div class="result-inner">
+      <div class="result-label" id="resultTitle">Time's Up</div>
+      <div class="result-score num" id="resultScore">0</div>
+      <div class="new-best hidden" id="newBestBadge">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        New Best
+      </div>
+
+      <div class="result-stats">
+        <div class="group" style="margin: 0;">
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">Best Score</div></div>
+            <div class="row-value num" id="resultBest">0</div>
+          </div>
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">Accuracy</div></div>
+            <div class="row-value num" id="resultAccuracy">0%</div>
+          </div>
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">Avg Reaction</div></div>
+            <div class="row-value num" id="resultReaction">—</div>
+          </div>
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">Misses</div></div>
+            <div class="row-value num" id="resultMisses">0</div>
+          </div>
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">Coins Earned</div></div>
+            <div class="row-value num" id="resultCoins">+0</div>
+          </div>
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">XP Earned</div></div>
+            <div class="row-value num" id="resultXp">+0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-primary btn-primary-lg" id="playAgainBtn">Play Again</button>
+        <button class="btn btn-glass" id="homeFromResultBtn">Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== STORE ===================== -->
+  <div id="storeScreen" class="screen hidden">
+    <div class="nav">
+      <button class="nav-back" id="storeBackBtn" aria-label="Back">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="nav-title">Store</div>
+      <div class="nav-right">
+        <span class="coin-dot"></span>
+        <span class="num" id="storeCoins">0</span>
+      </div>
+    </div>
+    <div class="screen-content" style="padding-bottom: 0; overflow-y: auto;">
+      <div class="store-segments-wrap">
+        <div class="segmented segmented-glass store-segments" id="storeSegments">
+          <button data-cat="targets" class="active">Targets</button>
+          <button data-cat="themes">Themes</button>
+          <button data-cat="effects">Effects</button>
+          <button data-cat="buttons">Buttons</button>
+          <button data-cat="backgrounds">Backgrounds</button>
+        </div>
+      </div>
+      <div class="store-grid" id="storeGrid"></div>
+    </div>
+  </div>
+
+  <!-- ===================== STATS ===================== -->
+  <div id="statsScreen" class="screen hidden">
+    <div class="nav">
+      <button class="nav-back" id="statsBackBtn" aria-label="Back">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="nav-title">Stats</div>
+    </div>
+    <div class="screen-content" style="overflow-y: auto;">
+      <div class="stat-hero">
+        <div class="stat-hero-value num" id="statHeroBest">0</div>
+        <div class="stat-hero-label">Best Score</div>
+      </div>
+      <div class="group" id="statsList"></div>
+
+      <div class="t-section" style="padding-top: 8px;">Achievements</div>
+      <div class="group">
+        <button class="group-row no-icon" id="achievementsBtn" style="width:100%;">
+          <div class="row-main">
+            <div class="row-title">Achievements</div>
+            <div class="row-sub" id="achievementsProgress">0 of 7 unlocked</div>
+          </div>
+          <div class="row-chevron">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ACHIEVEMENTS ===================== -->
+  <div id="achievementsScreen" class="screen hidden">
+    <div class="nav">
+      <button class="nav-back" id="achievementsBackBtn" aria-label="Back">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="nav-title">Achievements</div>
+    </div>
+    <div class="screen-content" style="overflow-y: auto;">
+      <div class="group" id="achievementsList"></div>
+    </div>
+  </div>
+
+  <!-- ===================== SETTINGS ===================== -->
+  <div id="settingsScreen" class="screen hidden">
+    <div class="nav">
+      <button class="nav-back" id="settingsBackBtn" aria-label="Back">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="nav-title">Settings</div>
+    </div>
+    <div class="screen-content" style="overflow-y: auto;">
+
+      <div class="t-section">Feedback</div>
+      <div class="group">
+        <div class="group-row" data-toggle="sound">
+          <div class="row-icon" style="background: #FF3B30;">
+            <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title">Sound</div></div>
+          <div class="switch" id="sw-sound"></div>
+        </div>
+        <div class="group-row" data-toggle="music">
+          <div class="row-icon" style="background: #FF2D55;">
+            <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title">Music</div></div>
+          <div class="switch" id="sw-music"></div>
+        </div>
+        <div class="group-row" data-toggle="haptics">
+          <div class="row-icon" style="background: #FF9500;">
+            <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2.5"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title">Haptics</div></div>
+          <div class="switch" id="sw-haptics"></div>
+        </div>
+        <div class="group-row" data-toggle="notifications">
+          <div class="row-icon" style="background: #FF3B30;">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title">Notifications</div></div>
+          <div class="switch" id="sw-notifications"></div>
+        </div>
+      </div>
+
+      <div class="t-section">Gameplay</div>
+      <div class="group">
+        <div class="group-row" data-toggle="targetFeedback">
+          <div class="row-icon" style="background: #0A84FF;">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+          </div>
+          <div class="row-main">
+            <div class="row-title">Target Feedback</div>
+            <div class="row-sub">Extra visual pulse on hit</div>
+          </div>
+          <div class="switch" id="sw-targetFeedback"></div>
+        </div>
+        <div class="group-row" data-toggle="animations">
+          <div class="row-icon" style="background: #AF52DE;">
+            <svg viewBox="0 0 24 24"><path d="M12 3l1.6 4.8L18 9l-4.4 1.2L12 15l-1.6-4.8L6 9l4.4-1.2z"/><path d="M18 15l.8 2.4L21 18l-2.2.6L18 21l-.8-2.4L15 18l2.2-.6z"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title">Animations</div></div>
+          <div class="switch" id="sw-animations"></div>
+        </div>
+        <div class="group-row no-icon" style="flex-direction: column; align-items: stretch; gap: 12px; padding-top: 14px; padding-bottom: 14px;">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <div class="row-icon" style="background: #34C759;">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div class="row-main"><div class="row-title">Difficulty</div></div>
+          </div>
+          <div class="segmented" id="difficultySegmented">
+            <button data-diff="easy">Easy</button>
+            <button data-diff="normal" class="active">Normal</button>
+            <button data-diff="hard">Hard</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="t-section">Store</div>
+      <div class="group">
+        <button class="group-row no-icon" id="restoreBtn" style="width:100%;">
+          <div class="row-main"><div class="row-title">Restore Purchases</div></div>
+          <div class="row-chevron">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </button>
+      </div>
+
+      <div class="t-section">Data</div>
+      <div class="group">
+        <button class="group-row" id="resetProgressBtn" style="width:100%;">
+          <div class="row-icon" style="background: #FF3B30;">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title" style="color: var(--red);">Reset Progress</div></div>
+        </button>
+      </div>
+
+      <div class="t-section">Legal</div>
+      <div class="group">
+        <button class="group-row no-icon" id="privacyBtn" style="width:100%;">
+          <div class="row-main"><div class="row-title">Privacy Policy</div></div>
+          <div class="row-chevron">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </button>
+        <button class="group-row no-icon" id="termsBtn" style="width:100%;">
+          <div class="row-main"><div class="row-title">Terms of Service</div></div>
+          <div class="row-chevron">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </button>
+      </div>
+
+      <div style="text-align:center; padding: 4px 20px 32px 20px; color: var(--label-3); font-size: 12px; letter-spacing: -0.05px;">
+        Tap Fast · v3.1
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SHEET ===================== -->
+  <div id="sheetOverlay" class="sheet-overlay hidden">
+    <div class="sheet" id="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-content" id="sheetContent"></div>
+    </div>
+  </div>
+
+  <!-- ===================== ALERT ===================== -->
+  <div id="alertOverlay" class="alert-overlay hidden">
+    <div class="alert">
+      <div class="alert-title" id="alertTitle"></div>
+      <div class="alert-message" id="alertMessage"></div>
+      <div class="alert-actions" id="alertActions"></div>
+    </div>
+  </div>
+
+  <!-- ===================== TOAST ===================== -->
+  <div id="toast" class="toast"></div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     STORAGE
+     ============================================================ */
+  const KEY = 'tapfast_v3';
+  const DEFAULT = {
+    best: 0,
+    coins: 0,
+    xp: 0,
+    level: 1,
+    purchased: [],
+    equipped: {
+      target: 'classic_circle',
+      theme: 'classic',
+      effect: 'ripple',
+      button: 'classic',
+      background: 'clean_white'
+    },
+    achievements: {},
+    stats: {
+      games: 0,
+      taps: 0,
+      hits: 0,
+      misses: 0,
+      totalReaction: 0,
+      reactionSamples: 0,
+      bestCombo: 0,
+      totalCoins: 0
+    },
+    settings: {
+      sound: true,
+      music: true,
+      haptics: true,
+      notifications: true,
+      targetFeedback: true,
+      animations: true,
+      difficulty: 'normal'
+    }
+  };
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) return deepMerge(JSON.parse(JSON.stringify(DEFAULT)), JSON.parse(raw));
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(DEFAULT));
+  }
+  function deepMerge(a, b) {
+    const out = JSON.parse(JSON.stringify(a));
+    for (const k in b) {
+      if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k])) out[k] = deepMerge(out[k] || {}, b[k]);
+      else out[k] = b[k];
+    }
+    return out;
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(G.data)); } catch (e) {}
+  }
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  const G = {
+    data: loadData(),
+    stack: ['splashScreen'],
+    game: {
+      active: false,
+      paused: false,
+      score: 0,
+      timeLeft: 30,
+      duration: 30,
+      timerInt: null,
+      countInt: null,
+      spawnTO: null,
+      targetEl: null,
+      lastTap: 0,
+      combo: 0,
+      maxCombo: 0,
+      hits: 0,
+      misses: 0,
+      taps: 0,
+      reactionTotal: 0,
+      reactionCount: 0,
+      startTime: 0,
+      difficulty: 0
+    },
+    storeCat: 'targets'
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  /* ============================================================
+     ICONS
+     ============================================================ */
+  const ICONS = {
+    bolt: '<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+    hand: '<svg viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 1 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>',
+    star: '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    trophy: '<svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>',
+    target: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>',
+    chart: '<svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>',
+    check: '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+    crown: '<svg viewBox="0 0 24 24"><path d="M3 6l4 6 5-8 5 8 4-6-2 14H5z"/></svg>',
+    hundred: '<svg viewBox="0 0 24 24"><path d="M5 8h4v10"/><circle cx="15" cy="13" r="4"/></svg>'
+  };
+
+  /* ============================================================
+     AUDIO
+     ============================================================ */
+  let audioCtx = null;
+  function initAudio() {
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }
+  function tone(freq, dur, type, vol) {
+    if (!G.data.settings.sound || !audioCtx) return;
+    try {
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type || 'sine';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(vol || 0.05, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + dur);
+    } catch (e) {}
+  }
+  const sfxTap = () => tone(880, 0.06, 'sine', 0.04);
+  const sfxMiss = () => tone(150, 0.1, 'sine', 0.035);
+  const sfxCount = () => tone(660, 0.09, 'sine', 0.045);
+  const sfxResult = () => { tone(660, 0.13, 'sine', 0.045); setTimeout(() => tone(990, 0.22, 'sine', 0.045), 120); };
+
+  /* ============================================================
+     HAPTICS
+     ============================================================ */
+  function haptic(ms) {
+    if (G.data.settings.haptics && navigator.vibrate) {
+      try { navigator.vibrate(ms || 8); } catch (e) {}
+    }
+  }
+
+  /* ============================================================
+     NAVIGATION
+     ============================================================ */
+  function go(id, mode) {
+    mode = mode || 'push';
+    const fromId = G.stack[G.stack.length - 1];
+    if (fromId === id) return;
+    const from = $(fromId);
+    const to = $(id);
+    if (!from || !to) return;
+
+    if (mode === 'push') G.stack.push(id);
+    else if (mode === 'pop') G.stack.pop();
+    else if (mode === 'replace') G.stack[G.stack.length - 1] = id;
+
+    transition(from, to, mode);
+  }
+
+  function transition(from, to, mode) {
+    to.classList.remove('hidden');
+    to.style.transition = 'none';
+    to.style.willChange = 'transform, opacity';
+
+    if (mode === 'push') { to.style.transform = 'translateX(100%)'; to.style.opacity = '1'; }
+    else if (mode === 'pop') { to.style.transform = 'translateX(-30%)'; to.style.opacity = '0.5'; }
+    else { to.style.transform = 'translateX(0)'; to.style.opacity = '0'; }
+    void to.offsetHeight;
+
+    const dur = G.data.settings.animations ? '0.38s' : '0s';
+    const ease = 'cubic-bezier(0.32, 0.72, 0, 1)';
+    to.style.transition = `transform ${dur} ${ease}, opacity ${dur} ${ease}`;
+    from.style.transition = `transform ${dur} ${ease}, opacity ${dur} ${ease}`;
+    from.style.willChange = 'transform, opacity';
+
+    to.style.transform = 'translateX(0)';
+    to.style.opacity = '1';
+
+    if (mode === 'push') { from.style.transform = 'translateX(-30%)'; from.style.opacity = '0.5'; }
+    else if (mode === 'pop') { from.style.transform = 'translateX(100%)'; from.style.opacity = '0'; }
+    else { from.style.opacity = '0'; }
+
+    setTimeout(() => {
+      from.classList.add('hidden');
+      from.style.transition = '';
+      from.style.transform = '';
+      from.style.opacity = '';
+      from.style.willChange = '';
+      to.style.transition = '';
+      to.style.transform = '';
+      to.style.opacity = '';
+      to.style.willChange = '';
+    }, G.data.settings.animations ? 400 : 10);
+  }
+
+  /* ============================================================
+     SHEET / ALERT / TOAST
+     ============================================================ */
+  function showSheet(html) {
+    const overlay = $('sheetOverlay');
+    $('sheetContent').innerHTML = html;
+    overlay.classList.remove('hidden');
+    requestAnimationFrame(() => overlay.classList.add('showing'));
+  }
+  function hideSheet() {
+    const overlay = $('sheetOverlay');
+    overlay.classList.remove('showing');
+    setTimeout(() => overlay.classList.add('hidden'), 320);
+  }
+  $('sheetOverlay').addEventListener('click', (e) => {
+    if (e.target === $('sheetOverlay')) hideSheet();
+  });
+
+  function showAlert(title, message, actions) {
+    $('alertTitle').textContent = title || '';
+    $('alertMessage').textContent = message || '';
+    const actionsEl = $('alertActions');
+    actionsEl.innerHTML = '';
+    (actions || [{ label: 'OK', bold: true }]).forEach(a => {
+      const btn = document.createElement('button');
+      btn.textContent = a.label;
+      if (a.bold) btn.classList.add('bold');
+      if (a.destructive) btn.classList.add('destructive');
+      btn.addEventListener('click', () => {
+        hideAlert();
+        if (a.onClick) setTimeout(a.onClick, 180);
+      });
+      actionsEl.appendChild(btn);
+    });
+    const overlay = $('alertOverlay');
+    overlay.classList.remove('hidden');
+    requestAnimationFrame(() => overlay.classList.add('showing'));
+  }
+  function hideAlert() {
+    const overlay = $('alertOverlay');
+    overlay.classList.remove('showing');
+    setTimeout(() => overlay.classList.add('hidden'), 280);
+  }
+
+  let toastTO = null;
+  function showToast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('showing');
+    clearTimeout(toastTO);
+    toastTO = setTimeout(() => t.classList.remove('showing'), 1800);
+  }
+
+  /* ============================================================
+     COSMETICS
+     ============================================================ */
+  const COSMETICS = {
+    targets: [
+      { id: 'classic_circle', name: 'Classic Circle', price: 0, shape: 'circle' },
+      { id: 'ring', name: 'Ring', price: 150, shape: 'ring' },
+      { id: 'square', name: 'Square', price: 200, shape: 'square' },
+      { id: 'star', name: 'Star', price: 350, shape: 'star' },
+      { id: 'hexagon', name: 'Hexagon', price: 300, shape: 'hexagon' },
+      { id: 'pulse', name: 'Pulse', price: 450, shape: 'pulse' },
+      { id: 'neon_ring', name: 'Neon Ring', price: 600, shape: 'ring' },
+      { id: 'minimal', name: 'Minimal', price: 500, shape: 'minimal' }
+    ],
+    themes: [
+      { id: 'classic', name: 'Classic', price: 0, color: '#0A84FF' },
+      { id: 'ocean', name: 'Ocean', price: 120, color: '#00B4D8' },
+      { id: 'sunset', name: 'Sunset', price: 180, color: '#FF9500' },
+      { id: 'electric', name: 'Electric', price: 250, color: '#5856D6' },
+      { id: 'mono', name: 'Mono', price: 200, color: '#1C1C1E' },
+      { id: 'retro', name: 'Retro', price: 300, color: '#FF3B30' },
+      { id: 'soft', name: 'Soft', price: 280, color: '#AF52DE' },
+      { id: 'cosmic', name: 'Cosmic', price: 500, color: '#5E5CE6' }
+    ],
+    effects: [
+      { id: 'ripple', name: 'Ripple', price: 0, type: 'ring' },
+      { id: 'circle_burst', name: 'Circle Burst', price: 100, type: 'fill' },
+      { id: 'spark', name: 'Spark', price: 180, type: 'spark' },
+      { id: 'pulse', name: 'Pulse', price: 220, type: 'pulse' },
+      { id: 'ring_expansion', name: 'Ring Expansion', price: 280, type: 'ring' },
+      { id: 'soft_particles', name: 'Soft Particles', price: 400, type: 'particles' }
+    ],
+    buttons: [
+      { id: 'classic', name: 'Classic', price: 0, radius: '14px' },
+      { id: 'rounded', name: 'Rounded', price: 80, radius: '22px' },
+      { id: 'capsule', name: 'Capsule', price: 120, radius: '100px' },
+      { id: 'minimal', name: 'Minimal', price: 100, radius: '8px' },
+      { id: 'soft', name: 'Soft', price: 150, radius: '18px' }
+    ],
+    backgrounds: [
+      { id: 'clean_white', name: 'Clean White', price: 0, bg: '#FAFAFB' },
+      { id: 'soft_gray', name: 'Soft Gray', price: 60, bg: '#F2F2F5' },
+      { id: 'blue', name: 'Blue', price: 120, bg: '#EFF6FF' },
+      { id: 'dark', name: 'Dark', price: 100, bg: '#1C1C1E' },
+      { id: 'gradient', name: 'Gradient', price: 200, bg: 'linear-gradient(180deg, #FAFAFB 0%, #E5E5EA 100%)' },
+      { id: 'grid', name: 'Grid', price: 180, bg: 'repeating-linear-gradient(0deg, #FAFAFB 0px, #FAFAFB 28px, #EEEEF2 28px, #EEEEF2 29px)' },
+      { id: 'minimal_dots', name: 'Minimal Dots', price: 160, bg: 'radial-gradient(circle, #D1D1D6 1px, transparent 1px) 0 0 / 22px 22px, #FAFAFB' }
+    ]
+  };
+
+  const LEVEL_UNLOCKS = {
+    ring: 3, square: 5, star: 8, hexagon: 7, pulse: 10, neon_ring: 12, minimal: 14,
+    ocean: 2, sunset: 6, electric: 8, mono: 10, retro: 12, soft: 13, cosmic: 18,
+    circle_burst: 4, spark: 6, pulse_effect: 9, ring_expansion: 11, soft_particles: 15,
+    rounded: 2, capsule: 5, minimal_btn: 7, soft_btn: 9,
+    soft_gray: 2, blue: 4, dark: 6, gradient: 10, grid: 12, minimal_dots: 14
+  };
+
+  function findItem(id) {
+    for (const cat of Object.values(COSMETICS)) {
+      const f = cat.find(i => i.id === id);
+      if (f) return f;
+    }
+    return null;
+  }
+  const getPrice = (id) => { const it = findItem(id); return it ? it.price : 0; };
+  const isOwned = (id) => G.data.purchased.includes(id) || getPrice(id) === 0;
+  function isUnlocked(id) {
+    const req = LEVEL_UNLOCKS[id];
+    return !req || G.data.level >= req;
+  }
+  function eqKey(cat) {
+    return { targets: 'target', themes: 'theme', effects: 'effect', buttons: 'button', backgrounds: 'background' }[cat];
+  }
+  function getEquipped(cat) {
+    const k = eqKey(cat);
+    const val = G.data.equipped[k];
+    if (val && findItem(val)) return val;
+    return COSMETICS[cat][0].id;
+  }
+
+  /* ============================================================
+     ACHIEVEMENTS
+     ============================================================ */
+  const ACHIEVEMENTS = [
+    { id: 'first_tap', icon: 'hand', color: '#0A84FF', title: 'First Tap', desc: 'Tap your first target', reward: 10 },
+    { id: 'speed_demon', icon: 'bolt', color: '#FF9500', title: 'Speed Demon', desc: 'Score 30 in one round', reward: 50 },
+    { id: 'perfect_run', icon: 'star', color: '#FFCC00', title: 'Perfect Run', desc: 'Score 50 with no misses', reward: 100 },
+    { id: 'hundred_club', icon: 'hundred', color: '#34C759', title: '100 Club', desc: 'Reach a score of 100', reward: 200 },
+    { id: 'tap_master', icon: 'crown', color: '#AF52DE', title: 'Tap Master', desc: 'Score 150 in one round', reward: 300 },
+    { id: 'no_miss', icon: 'target', color: '#5E5CE6', title: 'No Miss', desc: 'Complete a round with zero misses', reward: 75 },
+    { id: 'high_score', icon: 'chart', color: '#FF3B30', title: 'High Score', desc: 'Beat your best score 5 times', reward: 150 }
+  ];
+
+  function checkAchievements() {
+    const a = G.data.achievements;
+    const g = G.game;
+    const newly = [];
+    const unlock = (id) => { if (!a[id]) { a[id] = true; newly.push(id); } };
+
+    if (G.data.stats.taps > 0) unlock('first_tap');
+    if (g.score >= 30) unlock('speed_demon');
+    if (g.score >= 50 && g.misses === 0 && g.hits >= 50) unlock('perfect_run');
+    if (g.score >= 100) unlock('hundred_club');
+    if (g.score >= 150) unlock('tap_master');
+    if (g.misses === 0 && g.hits >= 20) unlock('no_miss');
+    if (G.data.stats.games >= 5 && g.score >= G.data.best && g.score > 0) unlock('high_score');
+
+    newly.forEach(id => {
+      const ach = ACHIEVEMENTS.find(x => x.id === id);
+      if (ach) G.data.coins += ach.reward;
+    });
+    if (newly.length) save();
+    return newly;
+  }
+
+  /* ============================================================
+     PROGRESSION
+     ============================================================ */
+  function xpForLevel(l) {
+    if (l >= 20) return Infinity;
+    return Math.floor(100 * Math.pow(1.35, l - 1));
+  }
+  function addXp(amount) {
+    G.data.xp += amount;
+    while (G.data.level < 20 && G.data.xp >= xpForLevel(G.data.level)) {
+      G.data.xp -= xpForLevel(G.data.level);
+      G.data.level++;
+    }
+    save();
+  }
+  function addCoins(amount) {
+    G.data.coins += amount;
+    G.data.stats.totalCoins += amount;
+    save();
+  }
+
+  /* ============================================================
+     APPLY COSMETICS
+     ============================================================ */
+  function applyCosmetics() {
+    const eq = G.data.equipped;
+    const bg = findItem(eq.background);
+    const bgVal = bg ? bg.bg : '#FAFAFB';
+    document.body.style.background = bgVal;
+    $('app').style.background = bgVal;
+    document.querySelectorAll('.screen').forEach(s => {
+      if (s.id === 'gameScreen') return;
+      s.style.background = bgVal;
+    });
+
+    const btn = findItem(eq.button);
+    const radius = btn ? btn.radius : '14px';
+    document.querySelectorAll('.btn-primary, .btn-secondary').forEach(b => {
+      b.style.borderRadius = radius;
+    });
+    document.querySelectorAll('.store-card-btn').forEach(b => {
+      b.style.borderRadius = Math.min(parseInt(radius), 100) + 'px';
+    });
+
+    if (G.data.settings.animations) document.body.classList.remove('no-anim');
+    else document.body.classList.add('no-anim');
+  }
+
+  function getThemeColor() {
+    const t = findItem(G.data.equipped.theme);
+    return t ? t.color : '#0A84FF';
+  }
+
+  /* ============================================================
+     HOME
+     ============================================================ */
+  function updateHome() {
+    $('homeBest').textContent = G.data.best;
+    $('homeLevel').textContent = G.data.level;
+    $('homeCoins').textContent = G.data.coins;
+  }
+
+  /* ============================================================
+     STORE UI
+     ============================================================ */
+  function renderStore() {
+    $('storeCoins').textContent = G.data.coins;
+    const cat = G.storeCat;
+    const items = COSMETICS[cat];
+    const grid = $('storeGrid');
+    grid.innerHTML = '';
+
+    items.forEach(item => {
+      const owned = isOwned(item.id);
+      const unlocked = isUnlocked(item.id);
+      const equipped = getEquipped(cat) === item.id;
+
+      const card = document.createElement('div');
+      card.className = 'store-card';
+
+      const preview = document.createElement('div');
+      preview.className = 'store-card-preview';
+      preview.appendChild(buildPreview(cat, item));
+
+      if (equipped) addBadge(preview, 'Equipped', 'owned');
+      else if (owned) addBadge(preview, 'Owned', 'owned');
+      else if (!unlocked) addBadge(preview, 'Lv ' + LEVEL_UNLOCKS[item.id], 'level');
+      else if (item.price >= 300) addBadge(preview, 'Premium', 'premium');
+      else if (item.price === 0) addBadge(preview, 'Free', 'free');
+
+      card.appendChild(preview);
+
+      const body = document.createElement('div');
+      body.className = 'store-card-body';
+
+      const name = document.createElement('div');
+      name.className = 'store-card-name';
+      name.textContent = item.name;
+      body.appendChild(name);
+
+      const meta = document.createElement('div');
+      meta.className = 'store-card-meta';
+      meta.textContent = owned ? 'Owned' : (unlocked ? item.price + ' coins' : 'Level ' + LEVEL_UNLOCKS[item.id]);
+      body.appendChild(meta);
+
+      const btn = document.createElement('button');
+      btn.className = 'store-card-btn';
+      if (equipped) { btn.classList.add('equipped'); btn.textContent = 'Equipped'; }
+      else if (owned) {
+        btn.classList.add('equip'); btn.textContent = 'Equip';
+        btn.addEventListener('click', () => equipItem(cat, item.id));
+      } else if (!unlocked) {
+        btn.classList.add('locked'); btn.textContent = 'Locked';
+      } else {
+        btn.classList.add('buy'); btn.textContent = 'Buy';
+        btn.addEventListener('click', () => tryBuy(cat, item));
+      }
+      body.appendChild(btn);
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+  }
+
+  function addBadge(parent, text, cls) {
+    const b = document.createElement('div');
+    b.className = 'badge ' + (cls || '');
+    b.textContent = text;
+    parent.appendChild(b);
+  }
+
+  function buildPreview(cat, item) {
+    const wrap = document.createElement('div');
+    const color = getThemeColor();
+
+    if (cat === 'targets') {
+      const s = 58;
+      wrap.style.width = s + 'px';
+      wrap.style.height = s + 'px';
+      const shape = document.createElement('div');
+      shape.style.width = s + 'px';
+      shape.style.height = s + 'px';
+      shape.className = 'shape-' + item.shape;
+      if (item.shape === 'ring') {
+        shape.style.border = '6px solid ' + color;
+        shape.style.background = 'transparent';
+      } else {
+        shape.style.background = color;
+      }
+      if (item.id === 'minimal') {
+        shape.style.opacity = '0.7';
+        shape.style.width = '38px';
+        shape.style.height = '38px';
+      }
+      wrap.style.display = 'flex';
+      wrap.style.alignItems = 'center';
+      wrap.style.justifyContent = 'center';
+      wrap.appendChild(shape);
+    } else if (cat === 'themes') {
+      const dot = document.createElement('div');
+      dot.style.width = '46px';
+      dot.style.height = '46px';
+      dot.style.borderRadius = '50%';
+      dot.style.background = item.color;
+      dot.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(255,255,255,0.25)';
+      wrap.appendChild(dot);
+    } else if (cat === 'effects') {
+      const ring = document.createElement('div');
+      ring.style.width = '44px';
+      ring.style.height = '44px';
+      ring.style.borderRadius = '50%';
+      if (item.type === 'fill') {
+        ring.style.background = color;
+        ring.style.opacity = '0.85';
+      } else if (item.type === 'ring') {
+        ring.style.border = '3px solid ' + color;
+      } else {
+        ring.style.border = '2px solid ' + color;
+        ring.style.boxShadow = '0 0 0 6px ' + hexA(color, 0.15);
+      }
+      wrap.appendChild(ring);
+    } else if (cat === 'buttons') {
+      const pill = document.createElement('div');
+      pill.style.width = '58px';
+      pill.style.height = '28px';
+      pill.style.background = color;
+      pill.style.borderRadius = item.radius;
+      wrap.appendChild(pill);
+    } else if (cat === 'backgrounds') {
+      const sw = document.createElement('div');
+      sw.style.width = '52px';
+      sw.style.height = '52px';
+      sw.style.borderRadius = '12px';
+      sw.style.background = item.bg;
+      sw.style.boxShadow = 'inset 0 0 0 1px rgba(60,60,67,0.10)';
+      wrap.appendChild(sw);
+    }
+    return wrap;
+  }
+
+  function hexA(hex, a) {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  function tryBuy(cat, item) {
+    if (G.data.coins < item.price) {
+      showToast('Not enough coins');
+      haptic(12);
+      return;
+    }
+    showSheet(`
+      <div class="sheet-title">${item.name}</div>
+      <div class="sheet-message">Unlock this item for ${item.price} coins?</div>
+      <div class="sheet-actions">
+        <button class="btn btn-primary" id="sheetConfirm">Buy for ${item.price}</button>
+        <button class="btn btn-glass" id="sheetCancel">Cancel</button>
+      </div>
+    `);
+    $('sheetConfirm').addEventListener('click', () => {
+      if (G.data.coins < item.price) { hideSheet(); showToast('Not enough coins'); return; }
+      G.data.coins -= item.price;
+      G.data.purchased.push(item.id);
+      G.data.equipped[eqKey(cat)] = item.id;
+      save();
+      hideSheet();
+      applyCosmetics();
+      renderStore();
+      updateHome();
+      haptic(18);
+      showToast('Purchased');
+    });
+    $('sheetCancel').addEventListener('click', hideSheet);
+  }
+
+  function equipItem(cat, id) {
+    G.data.equipped[eqKey(cat)] = id;
+    save();
+    applyCosmetics();
+    renderStore();
+    haptic(8);
+  }
+
+  /* ============================================================
+     STATS UI
+     ============================================================ */
+  function renderStats() {
+    const s = G.data.stats;
+    const avg = s.reactionSamples > 0 ? (s.totalReaction / s.reactionSamples) : 0;
+    $('statHeroBest').textContent = G.data.best;
+
+    const rows = [
+      ['Games Played', s.games],
+      ['Total Taps', s.taps],
+      ['Successful Taps', s.hits],
+      ['Missed Taps', s.misses],
+      ['Avg Reaction', avg > 0 ? Math.round(avg) + ' ms' : '—'],
+      ['Highest Combo', s.bestCombo],
+      ['Total Coins', s.totalCoins],
+      ['Level', G.data.level],
+      ['XP', G.data.xp + ' / ' + (xpForLevel(G.data.level) === Infinity ? 'MAX' : xpForLevel(G.data.level))]
+    ];
+
+    const list = $('statsList');
+    list.innerHTML = '';
+    rows.forEach(([label, value]) => {
+      const row = document.createElement('div');
+      row.className = 'group-row no-icon';
+      row.innerHTML = `<div class="row-main"><div class="row-title">${label}</div></div><div class="row-value num">${value}</div>`;
+      list.appendChild(row);
+    });
+
+    const unlockedCount = ACHIEVEMENTS.filter(a => G.data.achievements[a.id]).length;
+    $('achievementsProgress').textContent = unlockedCount + ' of ' + ACHIEVEMENTS.length + ' unlocked';
+  }
+
+  /* ============================================================
+     ACHIEVEMENTS UI
+     ============================================================ */
+  function renderAchievements() {
+    const list = $('achievementsList');
+    list.innerHTML = '';
+    ACHIEVEMENTS.forEach(a => {
+      const unlocked = !!G.data.achievements[a.id];
+      const row = document.createElement('div');
+      row.className = 'group-row achv-row' + (unlocked ? '' : ' locked');
+      row.innerHTML = `
+        <div class="row-icon" style="background: ${a.color};">${ICONS[a.icon] || ''}</div>
+        <div class="row-main">
+          <div class="row-title">${a.title}</div>
+          <div class="row-sub">${a.desc}</div>
+          <div class="achv-reward">+${a.reward} coins</div>
+        </div>
+        <div class="achv-check">${unlocked ? ICONS.check : ''}</div>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  /* ============================================================
+     SETTINGS UI
+     ============================================================ */
+  function renderSettings() {
+    const s = G.data.settings;
+    ['sound', 'music', 'haptics', 'notifications', 'targetFeedback', 'animations'].forEach(k => {
+      const sw = $('sw-' + k);
+      if (sw) sw.classList.toggle('on', !!s[k]);
+    });
+    document.querySelectorAll('#difficultySegmented button').forEach(b => {
+      b.classList.toggle('active', b.dataset.diff === s.difficulty);
+    });
+  }
+
+  /* ============================================================
+     GAME LOGIC
+     ============================================================ */
+  const DIFFICULTY = {
+    easy:   { duration: 36, baseSize: 96, minSize: 62, ramp: 160 },
+    normal: { duration: 30, baseSize: 84, minSize: 50, ramp: 120 },
+    hard:   { duration: 24, baseSize: 74, minSize: 44, ramp: 90 }
+  };
+
+  function startGame() {
+    initAudio();
+    const diff = DIFFICULTY[G.data.settings.difficulty] || DIFFICULTY.normal;
+
+    const g = G.game;
+    g.active = false;
+    g.paused = false;
+    g.score = 0;
+    g.timeLeft = diff.duration;
+    g.duration = diff.duration;
+    g.combo = 0;
+    g.maxCombo = 0;
+    g.hits = 0;
+    g.misses = 0;
+    g.taps = 0;
+    g.reactionTotal = 0;
+    g.reactionCount = 0;
+    g.lastTap = 0;
+    g.difficulty = 0;
+
+    $('gameScore').textContent = '0';
+    $('gameTimer').textContent = diff.duration.toFixed(1);
+    $('timerBar').style.width = '100%';
+    $('timerBar').classList.remove('warn', 'danger');
+    $('gameCombo').classList.remove('show');
+
+    if (g.targetEl) { g.targetEl.remove(); g.targetEl = null; }
+    if (g.spawnTO) { clearTimeout(g.spawnTO); g.spawnTO = null; }
+
+    go('gameScreen', 'push');
+
+    let count = 3;
+    $('countdownNumber').textContent = count;
+    $('countdownOverlay').classList.remove('hidden');
+    sfxCount();
+    haptic(12);
+
+    g.countInt = setInterval(() => {
+      count--;
+      if (count > 0) {
+        $('countdownNumber').textContent = count;
+        const el = $('countdownNumber');
+        el.style.animation = 'none';
+        void el.offsetWidth;
+        el.style.animation = 'countPop 0.55s cubic-bezier(0.34, 1.4, 0.5, 1) both';
+        sfxCount();
+        haptic(12);
+      } else {
+        clearInterval(g.countInt);
+        g.countInt = null;
+        $('countdownOverlay').classList.add('hidden');
+        haptic(22);
+        g.active = true;
+        g.startTime = performance.now();
+        startTimer();
+        spawnTarget();
+      }
+    }, 650);
+  }
+
+  function startTimer() {
+    const g = G.game;
+    const start = performance.now();
+    const totalMs = g.duration * 1000;
+
+    g.timerInt = setInterval(() => {
+      if (!g.active) return;
+      if (g.paused) {
+        // Adjust start time while paused
+        start += 50;
+        return;
+      }
+      const elapsed = performance.now() - start;
+      g.timeLeft = Math.max(0, (totalMs - elapsed) / 1000);
+      const t = g.timeLeft;
+      $('gameTimer').textContent = t.toFixed(1);
+      const pct = t / g.duration * 100;
+      const bar = $('timerBar');
+      bar.style.width = pct + '%';
+      bar.classList.toggle('warn', pct <= 50 && pct > 20);
+      bar.classList.toggle('danger', pct <= 20);
+      if (g.timeLeft <= 0) endGame();
+    }, 50);
+  }
+
+  function spawnTarget() {
+    const g = G.game;
+    if (!g.active) return;
+    if (g.targetEl) { g.targetEl.remove(); g.targetEl = null; }
+
+    const area = $('gameArea');
+    const W = area.clientWidth;
+    const H = area.clientHeight;
+    if (W <= 0 || H <= 0) return;
+
+    const diff = DIFFICULTY[G.data.settings.difficulty] || DIFFICULTY.normal;
+    const rampT = Math.min(1, g.score / diff.ramp);
+    g.difficulty = rampT;
+
+    const size = Math.round(diff.baseSize - rampT * (diff.baseSize - diff.minSize));
+    const pad = 16;
+    const maxX = W - size - pad * 2;
+    const maxY = H - size - pad * 2;
+    if (maxX < 0 || maxY < 0) return;
+
+    const x = pad + Math.random() * maxX;
+    const y = pad + Math.random() * maxY;
+
+    const target = document.createElement('div');
+    target.className = 'target appear';
+
+    const shapeItem = findItem(G.data.equipped.target);
+    const shape = shapeItem ? shapeItem.shape : 'circle';
+    target.classList.add('shape-' + shape);
+
+    const color = getThemeColor();
+    if (shape === 'ring') {
+      target.style.border = '6px solid ' + color;
+      target.style.background = 'transparent';
+    } else {
+      target.style.background = color;
+    }
+    if (G.data.equipped.target === 'minimal') {
+      target.style.opacity = '0.75';
+    }
+
+    target.style.width = size + 'px';
+    target.style.height = size + 'px';
+    target.style.left = x + 'px';
+    target.style.top = y + 'px';
+    target.dataset.cx = (x + size / 2);
+    target.dataset.cy = (y + size / 2);
+    target.dataset.size = size;
+
+    target.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onHit(target);
+    }, { passive: false });
+
+    area.appendChild(target);
+    g.targetEl = target;
+  }
+
+  function onHit(target) {
+    const g = G.game;
+    if (!g.active || g.paused || !target || !target.parentNode) return;
+
+    const now = performance.now();
+    const rt = g.lastTap > 0 ? now - g.lastTap : 0;
+    if (rt > 0 && rt < 2500) { g.reactionTotal += rt; g.reactionCount++; }
+    g.lastTap = now;
+
+    g.score++;
+    g.combo++;
+    if (g.combo > g.maxCombo) g.maxCombo = g.combo;
+    g.hits++;
+    g.taps++;
+
+    const scoreEl = $('gameScore');
+    scoreEl.textContent = g.score;
+    scoreEl.classList.add('pop');
+    setTimeout(() => scoreEl.classList.remove('pop'), 140);
+
+    if (g.combo >= 3) {
+      const cEl = $('gameCombo');
+      cEl.textContent = 'Combo ×' + g.combo;
+      cEl.classList.add('show');
+    }
+
+    G.data.stats.taps++;
+    G.data.stats.hits++;
+    if (g.maxCombo > G.data.stats.bestCombo) G.data.stats.bestCombo = g.maxCombo;
+    if (rt > 0 && rt < 2500) {
+      G.data.stats.totalReaction += rt;
+      G.data.stats.reactionSamples++;
+    }
+
+    sfxTap();
+    haptic(7);
+
+    target.classList.add('hit');
+    const cx = parseFloat(target.dataset.cx);
+    const cy = parseFloat(target.dataset.cy);
+    const size = parseFloat(target.dataset.size);
+    spawnEffect(cx, cy, size);
+
+    setTimeout(() => {
+      if (target.parentNode) target.remove();
+      if (g.targetEl === target) g.targetEl = null;
+    }, 160);
+
+    if (g.spawnTO) clearTimeout(g.spawnTO);
+    g.spawnTO = setTimeout(() => { if (g.active && !g.paused) spawnTarget(); }, 50);
+  }
+
+  function onMiss() {
+    const g = G.game;
+    if (!g.active || g.paused) return;
+    g.combo = 0;
+    g.misses++;
+    g.taps++;
+    G.data.stats.taps++;
+    G.data.stats.misses++;
+    sfxMiss();
+    haptic(5);
+    $('gameCombo').classList.remove('show');
+
+    const area = $('gameArea');
+    area.style.transition = 'background 0.14s ease';
+    area.style.background = 'rgba(255, 59, 48, 0.05)';
+    setTimeout(() => { area.style.background = 'transparent'; }, 130);
+  }
+
+  function spawnEffect(cx, cy, size) {
+    const effectItem = findItem(G.data.equipped.effect);
+    const type = effectItem ? effectItem.type : 'ring';
+    const color = getThemeColor();
+    const area = $('gameArea');
+
+    if (type === 'spark') {
+      for (let i = 0; i < 5; i++) {
+        const angle = (Math.PI * 2 / 5) * i;
+        const el = document.createElement('div');
+        el.className = 'hit-effect';
+        el.style.left = cx + 'px';
+        el.style.top = cy + 'px';
+        el.style.width = '7px';
+        el.style.height = '7px';
+        el.style.background = color;
+        el.style.animation = 'none';
+        area.appendChild(el);
+        const dx = Math.cos(angle) * 42;
+        const dy = Math.sin(angle) * 42;
+        requestAnimationFrame(() => {
+          el.style.transition = 'transform 0.44s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.44s ease';
+          el.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.2)`;
+          el.style.opacity = '0';
+        });
+        setTimeout(() => el.remove(), 500);
+      }
+      return;
+    }
+
+    const el = document.createElement('div');
+    el.className = 'hit-effect';
+    el.style.left = cx + 'px';
+    el.style.top = cy + 'px';
+
+    if (type === 'fill') {
+      el.style.width = size + 'px'; el.style.height = size + 'px';
+      el.style.background = color; el.style.opacity = '0.30';
+    } else if (type === 'particles') {
+      el.style.width = size * 1.2 + 'px'; el.style.height = size * 1.2 + 'px';
+      el.style.background = hexA(color, 0.18);
+    } else {
+      el.style.width = size + 'px'; el.style.height = size + 'px';
+      el.style.border = '3px solid ' + color; el.style.background = 'transparent';
+    }
+    area.appendChild(el);
+    setTimeout(() => el.remove(), 550);
+
+    if (G.data.settings.targetFeedback) {
+      const pulse = document.createElement('div');
+      pulse.className = 'hit-effect';
+      pulse.style.left = cx + 'px';
+      pulse.style.top = cy + 'px';
+      pulse.style.width = size * 0.6 + 'px';
+      pulse.style.height = size * 0.6 + 'px';
+      pulse.style.border = '2px solid ' + color;
+      pulse.style.background = 'transparent';
+      pulse.style.opacity = '0.5';
+      area.appendChild(pulse);
+      setTimeout(() => pulse.remove(), 550);
+    }
+  }
+
+  $('gameArea').addEventListener('pointerdown', (e) => {
+    if (!G.game.active || G.game.paused) return;
+    if (e.target.closest('.target')) return;
+    if (G.game.targetEl) onMiss();
+  });
+
+  function endGame() {
+    const g = G.game;
+    if (!g.active) return;
+    g.active = false;
+    g.paused = false;
+
+    if (g.timerInt) { clearInterval(g.timerInt); g.timerInt = null; }
+    if (g.countInt) { clearInterval(g.countInt); g.countInt = null; }
+    if (g.spawnTO) { clearTimeout(g.spawnTO); g.spawnTO = null; }
+    if (g.targetEl) { g.targetEl.remove(); g.targetEl = null; }
+
+    const coinsEarned = Math.floor(g.score * 1.5) + Math.floor(g.maxCombo * 2);
+    const xpEarned = Math.floor(g.score * 2) + 10;
+    const accuracy = g.taps > 0 ? Math.round(g.hits / g.taps * 100) : 0;
+    const avgReaction = g.reactionCount > 0 ? Math.round(g.reactionTotal / g.reactionCount) : 0;
+
+    G.data.stats.games++;
+
+    const isNewBest = g.score > G.data.best;
+    if (isNewBest) G.data.best = g.score;
+
+    addCoins(coinsEarned);
+    addXp(xpEarned);
+    save();
+
+    const newly = checkAchievements();
+
+    sfxResult();
+    haptic(28);
+
+    $('resultScore').textContent = g.score;
+    $('resultBest').textContent = G.data.best;
+    $('resultAccuracy').textContent = accuracy + '%';
+    $('resultReaction').textContent = avgReaction > 0 ? avgReaction + ' ms' : '—';
+    $('resultMisses').textContent = g.misses;
+    $('resultCoins').textContent = '+' + coinsEarned;
+    $('resultXp').textContent = '+' + xpEarned;
+    $('newBestBadge').classList.toggle('hidden', !isNewBest);
+
+    go('resultScreen', 'replace');
+
+    if (newly.length) {
+      const first = ACHIEVEMENTS.find(a => a.id === newly[0]);
+      if (first) setTimeout(() => showToast('Achievement: ' + first.title), 700);
+    }
+  }
+
+  /* ============================================================
+     PAUSE (for exit confirmation)
+     ============================================================ */
+  function pauseGame() {
+    const g = G.game;
+    if (!g.active) return;
+    g.paused = true;
+    if (g.spawnTO) { clearTimeout(g.spawnTO); g.spawnTO = null; }
+    if (g.targetEl) { g.targetEl.style.pointerEvents = 'none'; }
+  }
+
+  function resumeGame() {
+    const g = G.game;
+    if (!g.active) return;
+    g.paused = false;
+    if (g.targetEl) { g.targetEl.style.pointerEvents = 'auto'; }
+    // Ensure a target is present
+    if (!g.targetEl) spawnTarget();
+  }
+
+  function abandonGame() {
+    const g = G.game;
+    g.active = false;
+    g.paused = false;
+    if (g.timerInt) { clearInterval(g.timerInt); g.timerInt = null; }
+    if (g.countInt) { clearInterval(g.countInt); g.countInt = null; }
+    if (g.spawnTO) { clearTimeout(g.spawnTO); g.spawnTO = null; }
+    if (g.targetEl) { g.targetEl.remove(); g.targetEl = null; }
+  }
+
+  /* ============================================================
+     EVENT BINDINGS
+     ============================================================ */
+
+  // Splash → Home
+  setTimeout(() => {
+    const splash = $('splashScreen');
+    splash.classList.add('splash-out');
+    setTimeout(() => {
+      go('homeScreen', 'replace');
+      G.stack = ['homeScreen'];
+    }, 420);
+  }, 1500);
+
+  // Home
+  $('playBtn').addEventListener('click', () => { haptic(10); startGame(); });
+  $('storeBtn').addEventListener('click', () => { haptic(8); renderStore(); go('storeScreen', 'push'); });
+  $('statsBtn').addEventListener('click', () => { haptic(8); renderStats(); go('statsScreen', 'push'); });
+  $('settingsBtn').addEventListener('click', () => { haptic(8); renderSettings(); go('settingsScreen', 'push'); });
+
+  // Store back
+  $('storeBackBtn').addEventListener('click', () => { haptic(6); go('homeScreen', 'pop'); });
+  document.querySelectorAll('#storeSegments button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#storeSegments button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      G.storeCat = btn.dataset.cat;
+      haptic(6);
+      renderStore();
+    });
+  });
+
+  // Stats
+  $('statsBackBtn').addEventListener('click', () => { haptic(6); go('homeScreen', 'pop'); });
+  $('achievementsBtn').addEventListener('click', () => { haptic(6); renderAchievements(); go('achievementsScreen', 'push'); });
+  $('achievementsBackBtn').addEventListener('click', () => { haptic(6); go('statsScreen', 'pop'); });
+
+  // Settings
+  $('settingsBackBtn').addEventListener('click', () => { haptic(6); go('homeScreen', 'pop'); });
+
+  ['sound', 'music', 'haptics', 'notifications', 'targetFeedback', 'animations'].forEach(k => {
+    const sw = $('sw-' + k);
+    if (!sw) return;
+    sw.addEventListener('click', () => {
+      G.data.settings[k] = !G.data.settings[k];
+      save();
+      sw.classList.toggle('on', G.data.settings[k]);
+      haptic(8);
+      if (k === 'animations') applyCosmetics();
+      if (k === 'sound' && G.data.settings[k]) initAudio();
+    });
+  });
+
+  document.querySelectorAll('#difficultySegmented button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#difficultySegmented button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      G.data.settings.difficulty = btn.dataset.diff;
+      save();
+      haptic(6);
+    });
+  });
+
+  $('restoreBtn').addEventListener('click', () => {
+    haptic(8);
+    showAlert('Restore Purchases', 'Your purchases are stored locally on this device and are automatically restored when you open the app.');
+  });
+
+  $('resetProgressBtn').addEventListener('click', () => {
+    haptic(10);
+    showAlert('Reset Progress', 'This will permanently erase all your scores, coins, and unlocks. This cannot be undone.', [
+      { label: 'Cancel' },
+      { label: 'Reset', destructive: true, bold: true, onClick: () => {
+        localStorage.removeItem(KEY);
+        G.data = JSON.parse(JSON.stringify(DEFAULT));
+        save();
+        applyCosmetics();
+        renderSettings();
+        updateHome();
+        showToast('Progress reset');
+        go('homeScreen', 'pop');
+      }}
+    ]);
+  });
+
+  $('privacyBtn').addEventListener('click', () => {
+    haptic(6);
+    showAlert('Privacy Policy', 'Tap Fast stores all data locally on your device. No personal information is collected, transmitted, or shared. Your scores, coins, and settings never leave your phone.');
+  });
+  $('termsBtn').addEventListener('click', () => {
+    haptic(6);
+    showAlert('Terms of Service', 'Tap Fast is provided as-is for entertainment purposes. Have fun and play responsibly.');
+  });
+
+  // Result
+  $('playAgainBtn').addEventListener('click', () => { haptic(10); startGame(); });
+  $('homeFromResultBtn').addEventListener('click', () => {
+    haptic(6);
+    updateHome();
+    go('homeScreen', 'pop');
+  });
+
+  // ---- GAME EXIT ----
+  $('gameExitBtn').addEventListener('click', () => {
+    const g = G.game;
+    if (!g.active) {
+      // If not in active round (e.g., countdown), just go home
+      abandonGame();
+      updateHome();
+      go('homeScreen', 'pop');
+      return;
+    }
+    haptic(10);
+    pauseGame();
+    showSheet(`
+      <div class="sheet-title">Exit Game?</div>
+      <div class="sheet-message">Your current round will be lost.</div>
+      <div class="sheet-actions">
+        <button class="btn btn-primary" id="exitContinue">Continue Playing</button>
+        <button class="btn btn-glass" id="exitConfirm">Exit</button>
+      </div>
+    `);
+    $('exitContinue').addEventListener('click', () => {
+      hideSheet();
+      haptic(8);
+      // Resume after the sheet fully closes
+      setTimeout(resumeGame, 340);
+    });
+    $('exitConfirm').addEventListener('click', () => {
+      hideSheet();
+      haptic(12);
+      abandonGame();
+      setTimeout(() => {
+        updateHome();
+        go('homeScreen', 'pop');
+      }, 240);
+    });
+  });
+
+  /* ============================================================
+     GLOBAL LISTENERS
+     ============================================================ */
+  document.addEventListener('pointerdown', function once() {
+    initAudio();
+    document.removeEventListener('pointerdown', once);
+  }, { once: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (e.target.closest('#gameScreen') || e.target.closest('#homeScreen')) {
+      if (!e.target.closest('.screen-content')) e.preventDefault();
+    }
+  }, { passive: false });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && G.game.active && !G.game.paused) {
+      pauseGame();
+      showSheet(`
+        <div class="sheet-title">Paused</div>
+        <div class="sheet-message">Tap Continue to resume your round.</div>
+        <div class="sheet-actions">
+          <button class="btn btn-primary" id="pauseContinue">Continue</button>
+        </div>
+      `);
+      $('pauseContinue').addEventListener('click', () => {
+        hideSheet();
+        setTimeout(resumeGame, 340);
+      });
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (G.game.targetEl && G.game.active) {
+      const t = G.game.targetEl;
+      t.remove();
+      G.game.targetEl = null;
+      if (!G.game.paused) spawnTarget();
+    }
+  });
+
+  /* ============================================================
+     INIT
+     ============================================================ */
+  applyCosmetics();
+  updateHome();
+  renderSettings();
+
+})();
+</script>
+</body>
+</html>
