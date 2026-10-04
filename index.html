@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FFFFFF">
+<title>Tap Fast</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===================== SPLASH ===================== -->
+  <div id="splashScreen" class="screen">
+    <div class="splash-stage">
+      <div class="splash-glow"></div>
+      <div class="splash-ring"></div>
+      <div class="splash-ring ring-2"></div>
+      <div class="splash-logo">Tap<span class="accent">Fast</span></div>
+      <div class="splash-shine"></div>
+    </div>
+  </div>
+
+  <!-- ===================== HOME ===================== -->
+  <div id="homeScreen" class="screen hidden">
+    <div class="home-inner">
+      <div class="home-brand">Tap<span class="accent">Fast</span></div>
+      <div class="home-tagline">Tap the target. Beat the clock.</div>
+
+      <div class="home-stats">
+        <div class="home-stat">
+          <div class="home-stat-value num" id="homeBest">0</div>
+          <div class="home-stat-label">Best</div>
+        </div>
+        <div class="home-stat">
+          <div class="home-stat-value num" id="homeLevel">1</div>
+          <div class="home-stat-label">Level</div>
+        </div>
+        <div class="home-stat">
+          <div class="home-stat-value num" id="homeCoins">0</div>
+          <div class="home-stat-label">Coins</div>
+        </div>
+      </div>
+
+      <div class="home-actions">
+        <button class="btn btn-primary btn-primary-lg" id="playBtn">Play</button>
+        <div class="home-icon-row">
+          <button class="home-icon-btn" id="storeBtn">
+            <svg viewBox="0 0 24 24"><path d="M6 2L3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-3-5z"/><path d="M3 7h18"/><path d="M16 11a4 4 0 0 1-8 0"/></svg>
+            <span class="label">Store</span>
+          </button>
+          <button class="home-icon-btn" id="statsBtn">
+            <svg viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M12 20V4"/><path d="M20 20v-6"/></svg>
+            <span class="label">Stats</span>
+          </button>
+          <button class="home-icon-btn" id="settingsBtn">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span class="label">Settings</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== GAME ===================== -->
+  <div id="gameScreen" class="screen hidden">
+    <div class="game-hud">
+      <button class="game-exit" id="gameExitBtn" aria-label="Exit game">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <div class="game-score-group">
+        <div class="game-stat">
+          <div class="game-label">Score</div>
+          <div class="game-value num" id="gameScore">0</div>
+        </div>
+        <div class="game-stat right">
+          <div class="game-label">Time</div>
+          <div class="game-value num timer" id="gameTimer">30.0</div>
+        </div>
+      </div>
+    </div>
+    <div class="game-combo" id="gameCombo">Combo ×2</div>
+    <div class="game-progress">
+      <div class="game-progress-fill" id="timerBar"></div>
+    </div>
+    <div class="game-area" id="gameArea"></div>
+    <div class="countdown-overlay hidden" id="countdownOverlay">
+      <div class="countdown-number" id="countdownNumber">3</div>
+    </div>
+  </div>
+
+  <!-- ===================== RESULT ===================== -->
+  <div id="resultScreen" class="screen hidden">
+    <div class="result-inner">
+      <div class="result-label" id="resultTitle">Time's Up</div>
+      <div class="result-score num" id="resultScore">0</div>
+      <div class="new-best hidden" id="newBestBadge">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        New Best
+      </div>
+
+      <div class="result-stats">
+        <div class="group" style="margin: 0;">
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">Best Score</div></div>
+            <div class="row-value num" id="resultBest">0</div>
+          </div>
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">Accuracy</div></div>
+            <div class="row-value num" id="resultAccuracy">0%</div>
+          </div>
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">Avg Reaction</div></div>
+            <div class="row-value num" id="resultReaction">—</div>
+          </div>
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">Misses</div></div>
+            <div class="row-value num" id="resultMisses">0</div>
+          </div>
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">Coins Earned</div></div>
+            <div class="row-value num" id="resultCoins">+0</div>
+          </div>
+          <div class="group-row no-icon">
+            <div class="row-main"><div class="row-title">XP Earned</div></div>
+            <div class="row-value num" id="resultXp">+0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-primary btn-primary-lg" id="playAgainBtn">Play Again</button>
+        <button class="btn btn-glass" id="homeFromResultBtn">Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== STORE ===================== -->
+  <div id="storeScreen" class="screen hidden">
+    <div class="nav">
+      <button class="nav-back" id="storeBackBtn" aria-label="Back">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="nav-title">Store</div>
+      <div class="nav-right">
+        <span class="coin-dot"></span>
+        <span class="num" id="storeCoins">0</span>
+      </div>
+    </div>
+    <div class="screen-content" style="padding-bottom: 0; overflow-y: auto;">
+      <div class="store-segments-wrap">
+        <div class="segmented segmented-glass store-segments" id="storeSegments">
+          <button data-cat="targets" class="active">Targets</button>
+          <button data-cat="themes">Themes</button>
+          <button data-cat="effects">Effects</button>
+          <button data-cat="buttons">Buttons</button>
+          <button data-cat="backgrounds">Backgrounds</button>
+        </div>
+      </div>
+      <div class="store-grid" id="storeGrid"></div>
+    </div>
+  </div>
+
+  <!-- ===================== STATS ===================== -->
+  <div id="statsScreen" class="screen hidden">
+    <div class="nav">
+      <button class="nav-back" id="statsBackBtn" aria-label="Back">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="nav-title">Stats</div>
+    </div>
+    <div class="screen-content" style="overflow-y: auto;">
+      <div class="stat-hero">
+        <div class="stat-hero-value num" id="statHeroBest">0</div>
+        <div class="stat-hero-label">Best Score</div>
+      </div>
+      <div class="group" id="statsList"></div>
+
+      <div class="t-section" style="padding-top: 8px;">Achievements</div>
+      <div class="group">
+        <button class="group-row no-icon" id="achievementsBtn" style="width:100%;">
+          <div class="row-main">
+            <div class="row-title">Achievements</div>
+            <div class="row-sub" id="achievementsProgress">0 of 7 unlocked</div>
+          </div>
+          <div class="row-chevron">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ACHIEVEMENTS ===================== -->
+  <div id="achievementsScreen" class="screen hidden">
+    <div class="nav">
+      <button class="nav-back" id="achievementsBackBtn" aria-label="Back">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="nav-title">Achievements</div>
+    </div>
+    <div class="screen-content" style="overflow-y: auto;">
+      <div class="group" id="achievementsList"></div>
+    </div>
+  </div>
+
+  <!-- ===================== SETTINGS ===================== -->
+  <div id="settingsScreen" class="screen hidden">
+    <div class="nav">
+      <button class="nav-back" id="settingsBackBtn" aria-label="Back">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="nav-title">Settings</div>
+    </div>
+    <div class="screen-content" style="overflow-y: auto;">
+
+      <div class="t-section">Feedback</div>
+      <div class="group">
+        <div class="group-row" data-toggle="sound">
+          <div class="row-icon" style="background: #FF3B30;">
+            <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title">Sound</div></div>
+          <div class="switch" id="sw-sound"></div>
+        </div>
+        <div class="group-row" data-toggle="music">
+          <div class="row-icon" style="background: #FF2D55;">
+            <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title">Music</div></div>
+          <div class="switch" id="sw-music"></div>
+        </div>
+        <div class="group-row" data-toggle="haptics">
+          <div class="row-icon" style="background: #FF9500;">
+            <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2.5"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title">Haptics</div></div>
+          <div class="switch" id="sw-haptics"></div>
+        </div>
+        <div class="group-row" data-toggle="notifications">
+          <div class="row-icon" style="background: #FF3B30;">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title">Notifications</div></div>
+          <div class="switch" id="sw-notifications"></div>
+        </div>
+      </div>
+
+      <div class="t-section">Gameplay</div>
+      <div class="group">
+        <div class="group-row" data-toggle="targetFeedback">
+          <div class="row-icon" style="background: #0A84FF;">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+          </div>
+          <div class="row-main">
+            <div class="row-title">Target Feedback</div>
+            <div class="row-sub">Extra visual pulse on hit</div>
+          </div>
+          <div class="switch" id="sw-targetFeedback"></div>
+        </div>
+        <div class="group-row" data-toggle="animations">
+          <div class="row-icon" style="background: #AF52DE;">
+            <svg viewBox="0 0 24 24"><path d="M12 3l1.6 4.8L18 9l-4.4 1.2L12 15l-1.6-4.8L6 9l4.4-1.2z"/><path d="M18 15l.8 2.4L21 18l-2.2.6L18 21l-.8-2.4L15 18l2.2-.6z"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title">Animations</div></div>
+          <div class="switch" id="sw-animations"></div>
+        </div>
+        <div class="group-row no-icon" style="flex-direction: column; align-items: stretch; gap: 12px; padding-top: 14px; padding-bottom: 14px;">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <div class="row-icon" style="background: #34C759;">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div class="row-main"><div class="row-title">Difficulty</div></div>
+          </div>
+          <div class="segmented" id="difficultySegmented">
+            <button data-diff="easy">Easy</button>
+            <button data-diff="normal" class="active">Normal</button>
+            <button data-diff="hard">Hard</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="t-section">Store</div>
+      <div class="group">
+        <button class="group-row no-icon" id="restoreBtn" style="width:100%;">
+          <div class="row-main"><div class="row-title">Restore Purchases</div></div>
+          <div class="row-chevron">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </button>
+      </div>
+
+      <div class="t-section">Data</div>
+      <div class="group">
+        <button class="group-row" id="resetProgressBtn" style="width:100%;">
+          <div class="row-icon" style="background: #FF3B30;">
+            <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          </div>
+          <div class="row-main"><div class="row-title" style="color: var(--red);">Reset Progress</div></div>
+        </button>
+      </div>
+
+      <div class="t-section">Legal</div>
+      <div class="group">
+        <button class="group-row no-icon" id="privacyBtn" style="width:100%;">
+          <div class="row-main"><div class="row-title">Privacy Policy</div></div>
+          <div class="row-chevron">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </button>
+        <button class="group-row no-icon" id="termsBtn" style="width:100%;">
+          <div class="row-main"><div class="row-title">Terms of Service</div></div>
+          <div class="row-chevron">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </button>
+      </div>
+
+      <div style="text-align:center; padding: 4px 20px 32px 20px; color: var(--label-3); font-size: 12px; letter-spacing: -0.05px;">
+        Tap Fast · v3.1
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SHEET ===================== -->
+  <div id="sheetOverlay" class="sheet-overlay hidden">
+    <div class="sheet" id="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-content" id="sheetContent"></div>
+    </div>
+  </div>
+
+  <!-- ===================== ALERT ===================== -->
+  <div id="alertOverlay" class="alert-overlay hidden">
+    <div class="alert">
+      <div class="alert-title" id="alertTitle"></div>
+      <div class="alert-message" id="alertMessage"></div>
+      <div class="alert-actions" id="alertActions"></div>
+    </div>
+  </div>
+
+  <!-- ===================== TOAST ===================== -->
+  <div id="toast" class="toast"></div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
